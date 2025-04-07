@@ -1,8 +1,9 @@
+// src/app.module.ts
+
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-// import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-// import { TransactionsModule } from './transactions/transactions.module';
+import { TransactionsModule } from './transactions/transactions.module';
 import { User } from './users/user.entity';
 import { Transaction } from './transactions/transaction.entity';
 
@@ -18,9 +19,8 @@ import { Transaction } from './transactions/transaction.entity';
       entities: [User, Transaction],
       synchronize: true,
     }),
-    // UsersModule,
     AuthModule,
-    // TransactionsModule,
+    TransactionsModule,
   ],
 })
 export class AppModule {}
