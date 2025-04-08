@@ -18,6 +18,7 @@ export class Transaction {
   @JoinColumn({ name: 'sender_id' })
   sender: User;
 
+  
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'receiver_id' })
   receiver: User | null;

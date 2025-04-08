@@ -1,40 +1,46 @@
+// auth.service.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+// import { RegisterUserDto } from './dto/register-user.dto';
+import { RegisterUserDto } from 'src/users/dto/register-user.dto';
+import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
-    private userRepo: Repository<User>,
+    private userRepository: Repository<User>,
     private jwtService: JwtService,
   ) {}
 
-  async register(dto: RegisterDto) {
-    const existing = await this.userRepo.findOne({ where: { email: dto.email } });
-    if (existing) throw new UnauthorizedException('Email already in use');
+  async register(dto: RegisterUserDto) {
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    const hash = await bcrypt.hash(dto.password, 10);
-    const user = this.userRepo.create({ ...dto, password: hash });
-    await this.userRepo.save(user);
+    const user = this.userRepository.create({
+      name: dto.name,
+      email: dto.email,
+      password: hashedPassword,
+    });
 
-    return this.signToken(user);
+    await this.userRepository.save(user);
+
+    const payload = { sub: user.id, email: user.email };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 
-  async login(dto: LoginDto) {
-    const user = await this.userRepo.findOne({ where: { email: dto.email } });
+  async login(dto: LoginUserDto) {
+    const user = await this.userRepository.findOne({ where: { email: dto.email } });
+
     if (!user || !(await bcrypt.compare(dto.password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    return this.signToken(user);
-  }
 
-  private signToken(user: User) {
     const payload = { sub: user.id, email: user.email };
     return {
       access_token: this.jwtService.sign(payload),
