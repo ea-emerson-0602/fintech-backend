@@ -1,23 +1,31 @@
 // src/transactions/transactions.controller.ts
-
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { CreateTransactionDto } from './dto/create-transactions.dto';
-import { Transaction } from './transaction.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('transactions')
+@ApiTags('Transactions')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
-  async createTransaction(@Body() createTransactionDto: CreateTransactionDto): Promise<Transaction> {
-    return this.transactionsService.createTransaction(createTransactionDto);
+  create(@Body() dto: CreateTransactionDto, @Request() req) {
+    return this.transactionsService.create(dto, req.user.userId);
   }
 
-  @Get(':userId')
-  async getTransactions(@Param('userId') userId: number): Promise<Transaction[]> {
-    return this.transactionsService.getTransactions(userId);
+  @Get()
+  findAll(@Request() req) {
+    return this.transactionsService.findAll(req.user.userId);
   }
 }
