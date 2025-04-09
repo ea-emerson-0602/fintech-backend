@@ -38,19 +38,12 @@ export class UsersService {
     const isMatch = await bcrypt.compare(loginUserDto.password, user.password);
     if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
-    const token = this.jwtService.sign({ userId: user.id, email: user.email });
+    const token = this.jwtService.sign({ email: user.email });
     return { token };
   }
 
-  async findById(id: number) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) throw new NotFoundException('User not found');
-    const { password, ...result } = user;  // Exclude password
-    return result;
-  }
-
-  async getBalance(userId: number) {
-    const user = await this.findById(userId);
+  async getBalance(userEmail: string) {
+    const user = await this.findByEmail(userEmail);
     return { balance: user.balance };
   }
 

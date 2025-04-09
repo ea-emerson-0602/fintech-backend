@@ -1,9 +1,5 @@
 // src/transactions/transactions.service.ts
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transaction, TransactionType } from './entities/transaction.entity';
@@ -20,30 +16,28 @@ export class TransactionsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createTransactionDto: CreateTransactionDto, userId: number) {
-    const sender = await this.userRepository.findOne({ where: { id: userId } });
+  async create(createTransactionDto: CreateTransactionDto, userEmail: string) {
+    const sender = await this.userRepository.findOne({ where: { email: userEmail } });
     if (!sender) throw new NotFoundException('Sender not found');
 
     const amount = createTransactionDto.amount;
 
     let receiver: User | null = null;
     if (createTransactionDto.type === TransactionType.TRANSFER) {
-      if (!createTransactionDto.receiverId)
-        throw new BadRequestException('Receiver ID is required for transfer');
+      if (!createTransactionDto.receiverEmail)
+        throw new BadRequestException('Receiver email is required for transfer');
 
       receiver = await this.userRepository.findOne({
-        where: { id: createTransactionDto.receiverId },
+        where: { email: createTransactionDto.receiverEmail },  // Find by email instead of ID
       });
       if (!receiver) throw new NotFoundException('Receiver not found');
 
-      if (receiver.id === sender.id)
+      if (receiver.email === sender.email)
         throw new BadRequestException('Cannot transfer to self');
     }
 
     if (
-      [TransactionType.WITHDRAWAL, TransactionType.TRANSFER].includes(
-        createTransactionDto.type,
-      ) &&
+      [TransactionType.WITHDRAWAL, TransactionType.TRANSFER].includes(createTransactionDto.type) &&
       sender.balance < amount
     ) {
       throw new BadRequestException('Insufficient funds');
@@ -52,6 +46,7 @@ export class TransactionsService {
     // Update balances
     if (createTransactionDto.type === TransactionType.DEPOSIT) {
       sender.balance += amount;
+      await this.userRepository.save(sender);
     } else if (createTransactionDto.type === TransactionType.WITHDRAWAL) {
       sender.balance -= amount;
     } else if (createTransactionDto.type === TransactionType.TRANSFER && receiver) {
@@ -72,9 +67,9 @@ export class TransactionsService {
     return this.transactionRepository.save(transaction);
   }
 
-  async findAll(userId: number) {
+  async findAll(userEmail: string) {
     return this.transactionRepository.find({
-      where: [{ sender: { id: userId } }, { receiver: { id: userId } }],
+      where: [{ sender: { email: userEmail } }, { receiver: { email:userEmail} }],
       relations: ['sender', 'receiver'],
       order: { timestamp: 'DESC' },
     });

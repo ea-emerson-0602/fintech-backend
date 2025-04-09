@@ -1,17 +1,14 @@
 import { Exclude } from 'class-transformer';
 import { Transaction } from '../../transactions/entities/transaction.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn() // Email is now the primary key
+  email: string;
 
   @Column()
   name: string;
-
-  @Column({ unique: true })
-  email: string;
 
   @Column()
   @Exclude() // Hide password in responses

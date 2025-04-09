@@ -10,11 +10,11 @@ import { Transaction } from './transactions/entities/transaction.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: process.env.DB_HOST, // Access DB_HOST from .env file
-      port: (process.env.DB_PORT, 10),
-      username: process.env.DB_USER, // Access DB_USER from .env file
-      password: process.env.DB_PASSWORD, // Access DB_PASSWORD from .env file
-      database: process.env.DB_NAME,
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: 'victoria2000',
+      database: 'fintechdb',
       entities: [User, Transaction],
       synchronize: true,
     }),

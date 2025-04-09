@@ -1,42 +1,51 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-
+import { CurrentUser } from 'src/auth/current-user.decorator'; // 👈 Add this decorator
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 
 @ApiTags('Users')
-@Controller('users')
+@Controller('')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('register')
+  @Post('auth/register')
   register(@Body() dto: CreateUserDto) {
     return this.usersService.register(dto);
   }
 
-  @Post('login')
+  @Post('auth/login')
   login(@Body() dto: LoginUserDto) {
     return this.usersService.login(dto);
   }
 
-  @Get(':userId/balance')
-  async getBalance(@Param('userId') userId: number): Promise<{ balance: number }> {
-    return this.usersService.getBalance(userId);
+  @Get('user/:email/balance')
+  getBalance(@Param('email') email: string) {
+    return this.usersService.getBalance(email);
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Get('me')
-  me(@Req() req) {
-    return this.usersService.findById(req.user.userId);
+  @Get('user/me')
+  me(@CurrentUser() user: any) {
+    console.log('Logged-in user:', user); // ✅ You'll see the actual user here
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Get('balance')
-  balance(@Req() req) {
-    return this.usersService.getBalance(req.user.userId);
+  @Get('wallet/balance')
+  balance(@CurrentUser() user: any) {
+    return this.usersService.getBalance(user.email);
   }
 }
