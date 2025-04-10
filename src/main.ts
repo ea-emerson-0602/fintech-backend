@@ -12,11 +12,11 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-
-    app.enableCors({
-      origin: 'http://localhost:3001', // your frontend port
-      credentials: true, // if you're sending cookies or Authorization headers
-    });
+    app.enableCors();
+    // app.enableCors({
+    //   origin: 'http://localhost:3001', // your frontend port
+    //   credentials: true, // if you're sending cookies or Authorization headers
+    // });
     
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

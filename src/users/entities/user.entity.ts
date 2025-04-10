@@ -1,25 +1,49 @@
-import { Exclude } from 'class-transformer';
-import { Transaction } from '../../transactions/entities/transaction.entity';
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+// users/user.entity.ts
 
-@Entity()
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Transaction } from '../../wallet/entities/transaction.entity';
+
+@Entity('users')
 export class User {
-  @PrimaryColumn() // Email is now the primary key
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
   email: string;
 
   @Column()
-  name: string;
-
-  @Column()
-  @Exclude() // Hide password in responses
   password: string;
 
-  @Column({ type: 'float', default: 0 })
+  @Column({
+    type: 'decimal',
+    precision: 15,  // Increased precision
+    scale: 2,      // Exactly 2 decimal places
+    default: 0.00,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value)
+    }
+  })
   balance: number;
 
-  @OneToMany(() => Transaction, (transaction) => transaction.sender)
-  sentTransactions: Transaction[];
+  @Column('simple-json', { nullable: true })
+  transactions: Array<{
+    id: string;
+    amount: number;
+    type: string;
+    timestamp: Date;
+    description: string | null;
+    balance: number;
+  }>;
+  
 
-  @OneToMany(() => Transaction, (transaction) => transaction.receiver)
-  receivedTransactions: Transaction[];
+  // @Column('simple-json', { default: '[]' })
+  // transactions: Array<{
+  //   id: string;
+  //   amount: number;
+  //   type: string;
+  //   timestamp: Date;
+  //   description: string | null;
+  //   balance: number;
+  // }>;
 }

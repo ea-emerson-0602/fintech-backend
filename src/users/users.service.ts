@@ -25,26 +25,48 @@ export class UsersService {
       ...createUserDto,
       password: hashedPassword,
     });
+    await this.userRepository.save({
+      email: createUserDto.email,
+      password: hashedPassword,
+      transactions: [],
+    });
 
     const savedUser = await this.userRepository.save(user);
     const { password, ...result } = savedUser;  // Exclude password
     return result;
   }
 
-  async login(loginUserDto: LoginUserDto) {
-    const user = await this.userRepository.findOne({ where: { email: loginUserDto.email } });
-    if (!user) throw new NotFoundException('User not found');
+    async comparePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+      return bcrypt.compare(plainPassword, hashedPassword); // Compare plain password with hashed one
+    }
 
-    const isMatch = await bcrypt.compare(loginUserDto.password, user.password);
-    if (!isMatch) throw new UnauthorizedException('Invalid credentials');
-
-    const token = this.jwtService.sign({ email: user.email });
-    return { token };
+  async login(loginDto: LoginUserDto) {
+    const user = await this.userRepository.findOne({ where: { email: loginDto.email } });
+  
+    if (!user || !(await this.comparePassword(loginDto.password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+  
+    const payload = { email: user.email, id: user.id };
+    const token = this.jwtService.sign(payload);
+  
+    return {
+      token,
+      user: {
+        email: user.email,
+        id: user.id
+      }
+    };
   }
 
   async getBalance(userEmail: string) {
     const user = await this.findByEmail(userEmail);
     return { balance: user.balance };
+  }
+
+  async getTransactions(userEmail:string){
+    const user = await this.findByEmail(userEmail)
+    return {transactions:user.transactions}
   }
 
   async findByEmail(email: string) {

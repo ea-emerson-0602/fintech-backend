@@ -1,27 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../users/entities/user.entity'; // Adjust path according to your project structure
+import { LoginUserDto } from './dto/login-user.dto'; // Import the DTO
+import * as bcrypt from 'bcrypt';  // bcrypt for password hashing
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/users/users.service';
-import { LoginUserDto } from 'src/users/dto/login-user.dto';
-import { UnauthorizedException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>, // Injecting UserRepository
+    private jwtService: JwtService,  // Injecting JwtService to sign the token
   ) {}
 
-  async login(loginUserDto: LoginUserDto) {
-    const user = await this.usersService.findByEmail(loginUserDto.email);
-    if (!user) throw new UnauthorizedException('Invalid credentials');
-  
-    const isMatch = await bcrypt.compare(loginUserDto.password, user.password);
-    if (!isMatch) throw new UnauthorizedException('Invalid credentials');
-  
-    const payload = { email: user.email };
-    const token = this.jwtService.sign(payload);
-    return { token };  // Ensure that the correct user info is being returned, or if needed, additional user info.
+  // Password comparison logic
+  async comparePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, hashedPassword); // Compare plain password with hashed one
   }
   
+async login(loginDto: LoginUserDto) {
+  const user = await this.userRepository.findOne({ where: { email: loginDto.email } });
+
+  if (!user || !(await this.comparePassword(loginDto.password, user.password))) {
+    throw new UnauthorizedException('Invalid credentials');
+  }
+
+  const payload = { email: user.email, id: user.id };
+  const token = this.jwtService.sign(payload);
+
+  return {
+    token,
+    user: {
+      email: user.email,
+      id: user.id
+    }
+  };
+}
+
 }
