@@ -15,9 +15,9 @@ async function bootstrap() {
   // main.ts
   app.enableCors({
     origin: process.env.FRONTEND_URL,
-    credentials: true,
-    // allowedHeaders: ['Authorization', 'Content-Type'],
-    // exposedHeaders: ['Authorization'],
+    credentials: true, // Allow cookies
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   const document = SwaggerModule.createDocument(app, config);
