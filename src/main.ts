@@ -17,6 +17,7 @@ async function bootstrap() {
     origin: [
       'https://fintech-frontend-tawny.vercel.app',
       'https://fintech-frontend-tawny.vercel.app/login',
+      'https://fintech-frontend-tawny.vercel.app/dashboard',
       'http://localhost:3000',
       'http://localhost:3001' // For local testing
     ],
