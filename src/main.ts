@@ -16,7 +16,9 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://fintech-frontend-tawny.vercel.app',
-      'http://localhost:3000' // For local testing
+      'https://fintech-frontend-tawny.vercel.app/login',
+      'http://localhost:3000',
+      'http://localhost:3001' // For local testing
     ],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
