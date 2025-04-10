@@ -78,8 +78,8 @@ export class UsersController {
 
     response.cookie('jwt', jwt, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // only send cookie over HTTPS in production
-      sameSite: 'lax', // 'strict' or 'lax' depending on your use case
+      secure: true, // only send cookie over HTTPS in production
+      sameSite: 'none', // 'strict' or 'lax' depending on your use case
       maxAge: 3600000, // 1 hour
     });
     return { user_details: user };

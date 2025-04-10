@@ -14,7 +14,7 @@ async function bootstrap() {
     .build();
   // main.ts
   app.enableCors({
-    origin: true,
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     // allowedHeaders: ['Authorization', 'Content-Type'],
     // exposedHeaders: ['Authorization'],
