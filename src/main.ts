@@ -14,10 +14,25 @@ async function bootstrap() {
     .build();
   // main.ts
   app.enableCors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true, // Allow cookies
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: [
+      'https://fintech-frontend-tawny.vercel.app',
+      'http://localhost:3000' // For local testing
+    ],
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization,X-Requested-With',
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  });
+
+  // Explicit OPTIONS handler for all routes
+  app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+      res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      return res.status(204).send();
+    }
+    next();
   });
 
   const document = SwaggerModule.createDocument(app, config);
