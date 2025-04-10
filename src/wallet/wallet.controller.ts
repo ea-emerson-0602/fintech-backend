@@ -4,8 +4,6 @@ import { TransactionsService } from './wallet.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { TransactionType } from './enums/transaction-type.enum';
 import { TransferDto } from './dto/transfer.dto';
-import { GetUser } from 'src/auth/get-user.decorator';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('')

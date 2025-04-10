@@ -1,7 +1,4 @@
-// users/user.entity.ts
-
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Transaction } from '../../wallet/entities/transaction.entity';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('users')
 export class User {

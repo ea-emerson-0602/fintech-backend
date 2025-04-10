@@ -4,18 +4,13 @@ import {
   Get,
   Param,
   Post,
-  Req,
   UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { CurrentUser } from 'src/auth/current-user.decorator'; // 👈 Add this decorator
+import {  ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 
 import { LoginUserDto } from './dto/login-user.dto';
-import { AuthService } from '../auth/auth.service';
 
 @ApiTags('Users')
 @Controller('')
