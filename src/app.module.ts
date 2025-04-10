@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { WalletModule } from './wallet/wallet.module';
+// import { WalletModule } from './wallet/wallet.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
-import { Transaction } from './wallet/entities/transaction.entity';
 import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { JwtService } from '@nestjs/jwt';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -14,19 +17,30 @@ import { ConfigModule } from '@nestjs/config';
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
+      // host: 'localhost',
+      // port: 3306,
+      // username: 'root',
+      // password: 'victoria2000',
+      // database: 'fintechdb',
+
       host: process.env.DB_HOST,
       port: 10862,
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Transaction],
+      entities: [User],
       synchronize: true,
+      // dropSchema:true,
+
     }),
+
     UsersModule, 
     AuthModule,
-    WalletModule,
+    // TransactionsModule,
+    TypeOrmModule.forFeature([User])
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService, JwtService, JwtAuthGuard],
+  exports: [JwtAuthGuard],
 })
 export class AppModule {}
