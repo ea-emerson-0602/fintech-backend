@@ -15,29 +15,40 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     ConfigModule.forRoot({
       isGlobal: true, // so you don't have to import it everywhere
     }),
+    // TypeOrmModule.forRoot({
+    //   type: 'mysql',
+    //   // host: 'localhost',
+    //   // port: 3306,
+    //   // username: 'root',
+    //   // password: 'victoria2000',
+    //   // database: 'fintechdb',
+    //   // entities: [User],
+
+    //   host: process.env.DB_HOST,
+    //   port: 10862,
+    //   username: process.env.DB_USER,
+    //   password: process.env.DB_PASSWORD,
+    //   database: process.env.DB_NAME,
+    //   entities: [User],
+    //   synchronize: true,
+    //   // dropSchema:true,
+
+    // }),
+
     TypeOrmModule.forRoot({
-      type: 'mysql',
-      // host: 'localhost',
-      // port: 3306,
-      // username: 'root',
-      // password: 'victoria2000',
-      // database: 'fintechdb',
+  type: 'postgres',
+  url: process.env.DATABASE_URL,
+  entities: [User],
+  synchronize: true,
+  ssl: {
+    rejectUnauthorized: false,  // allows self-signed certificates
+  },
+}),
 
-      host: process.env.DB_HOST,
-      port: 10862,
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [User],
-      synchronize: true,
-      // dropSchema:true,
-
-    }),
-
-    UsersModule, 
+    UsersModule,
     AuthModule,
     // TransactionsModule,
-    TypeOrmModule.forFeature([User])
+    TypeOrmModule.forFeature([User]),
   ],
   controllers: [AppController],
   providers: [AppService, JwtService, JwtAuthGuard],
